@@ -1,0 +1,65 @@
+# First, create the datadog-secret with the folling command:
+# kubectl create secret generic datadog-secret --from-literal api-key=$DD_API_KEY --from-literal app-key=$DD_APP_KEY
+
+apiVersion: datadoghq.com/v2alpha1
+kind: DatadogAgent
+metadata:
+  name: datadog-agent
+  annotations:
+    agent.datadoghq.com/private-action-runner-enabled: "true"
+    agent.datadoghq.com/private-action-runner-configdata: |
+      privateactionrunner:
+        enabled: true
+        self_enroll: true
+        actions_allowlist:
+          - com.datadoghq.script.testConnection
+          - com.datadoghq.http.request
+          - com.datadoghq.script.runShellScript
+          - com.datadoghq.script.runPredefinedScript
+          - com.datadoghq.kubernetes.core.listPod
+          - com.datadoghq.kubernetes.core.getPod
+          - com.datadoghq.kubernetes.apps.listDeployment
+          - com.datadoghq.kubernetes.apps.getDeployment
+spec:
+  global:
+    credentials:
+      apiSecret:
+        secretName: datadog-secret
+        keyName: api-key
+      appSecret:
+        secretName: datadog-secret
+        keyName: app-key
+    clusterName: kind-par-dev
+    site: datad0g.com
+  features:
+    logCollection:
+      enabled: true
+      containerCollectAll: true
+  override:
+    nodeAgent:
+      image:
+        name: registry.ddbuild.io/ci/datadog-agent/agent:v94998768-9593e559-7-arm64
+      volumes:
+        - name: par-scripts
+          secret:
+            secretName: par-script-credentials
+      containers:
+        agent:
+          env:
+            - name: DD_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+        private-action-runner:
+          env:
+            - name: DD_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: par-scripts
+              mountPath: /etc/dd-action-runner/config/credentials
+              readOnly: true
+    clusterAgent:
+      image:
+        name: docker.io/datadog/cluster-agent:7.76.0-rc.3

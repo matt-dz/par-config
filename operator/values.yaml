@@ -1,0 +1,12 @@
+# Helm values for datadog-operator with custom image
+# Usage: helm install datadog-operator datadog/datadog-operator -n datadog-operator -f values.yaml
+
+image:
+  repository: datadog-operator
+  tag: par-privileged
+  pullPolicy: Never
+  doNotCheckTag: true
+
+# Watch all namespaces so the operator picks up DatadogAgent CRs in any namespace
+watchNamespaces:
+  - ""

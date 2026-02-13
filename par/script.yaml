@@ -1,0 +1,341 @@
+schemaId: "script-credentials-v1"
+runPredefinedScript:
+  # ============ BASIC TEST SCRIPTS ============
+  echo-test:
+    command:
+      - "echo"
+      - "PAR script execution working"
+
+  echo-message:
+    command:
+      - "echo"
+      - "{{ parameters.message}}"
+    parameterSchema:
+      properties:
+        message:
+          type: "string"
+      required:
+        - "message"
+
+  system-info:
+    command:
+      - "uname"
+      - "-a"
+
+  # ============ AGENT STATUS TOOLS ============
+  get-agent-status:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.section}}' ] && args+=(--section '{{ parameters.section}}'); [ '{{ parameters.listSections}}' = 'true' ] && args+=(--list-sections); [ '{{ parameters.includeClusterAgent}}' = 'true' ] && args+=(--include-cluster-agent); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/agent/get-agent-status.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        section:
+          type: "string"
+        listSections:
+          type: "boolean"
+        includeClusterAgent:
+          type: "boolean"
+        all:
+          type: "boolean"
+
+  get-configured-checks:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.check}}' ] && args+=(--check '{{ parameters.check}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/agent/get-configured-checks.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        check:
+          type: "string"
+        all:
+          type: "boolean"
+
+  agent-diagnose:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.include}}' ] && args+=(--include '{{ parameters.include}}'); [ -n '{{ parameters.exclude}}' ] && args+=(--exclude '{{ parameters.exclude}}'); [ '{{ parameters.list}}' = 'true' ] && args+=(--list); [ '{{ parameters.verbose}}' = 'true' ] && args+=(--verbose); [ '{{ parameters.includeClusterAgent}}' = 'true' ] && args+=(--include-cluster-agent); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/agent/agent-diagnose.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        include:
+          type: "string"
+        exclude:
+          type: "string"
+        list:
+          type: "boolean"
+        verbose:
+          type: "boolean"
+        includeClusterAgent:
+          type: "boolean"
+        all:
+          type: "boolean"
+
+  get-check-execution-details:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.check}}' ] && args+=(--check '{{ parameters.check}}'); [ -n '{{ parameters.format}}' ] && args+=(--format '{{ parameters.format}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/agent/get-check-execution-details.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        check:
+          type: "string"
+        format:
+          type: "string"
+          enum: ["full", "summary"]
+        all:
+          type: "boolean"
+
+  run-check-once:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(--check '{{ parameters.check}}'); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.logLevel}}' ] && args+=(--log-level '{{ parameters.logLevel}}'); [ -n '{{ parameters.delay}}' ] && [ '{{ parameters.delay}}' != '0' ] && args+=(--delay '{{ parameters.delay}}'); [ -n '{{ parameters.times}}' ] && [ '{{ parameters.times}}' != '0' ] && args+=(--times '{{ parameters.times}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/agent/run-check-once.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        check:
+          type: "string"
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        logLevel:
+          type: "string"
+          enum: ["trace", "debug", "info", "warn", "error"]
+        delay:
+          type: "integer"
+        times:
+          type: "integer"
+        all:
+          type: "boolean"
+      required:
+        - "check"
+
+  # ============ FILESYSTEM TOOLS ============
+  list-files:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(--path '{{ parameters.path}}'); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.pattern}}' ] && args+=(--pattern '{{ parameters.pattern}}'); [ -n '{{ parameters.type}}' ] && args+=(--type '{{ parameters.type}}'); [ -n '{{ parameters.maxDepth}}' ] && [ '{{ parameters.maxDepth}}' != '0' ] && args+=(--max-depth '{{ parameters.maxDepth}}'); [ '{{ parameters.recursive}}' = 'true' ] && args+=(--recursive); [ '{{ parameters.long}}' = 'true' ] && args+=(--long); exec /scripts/filesystem/list-files.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        path:
+          type: "string"
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        pattern:
+          type: "string"
+        type:
+          type: "string"
+          enum: ["f", "d", "l"]
+        maxDepth:
+          type: "integer"
+        recursive:
+          type: "boolean"
+        long:
+          type: "boolean"
+      required:
+        - "path"
+
+  read-file:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(--path '{{ parameters.path}}'); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.mode}}' ] && args+=(--mode '{{ parameters.mode}}'); [ -n '{{ parameters.lines}}' ] && [ '{{ parameters.lines}}' != '0' ] && args+=(--lines '{{ parameters.lines}}'); [ -n '{{ parameters.grep}}' ] && args+=(--grep '{{ parameters.grep}}'); exec /scripts/filesystem/read-file.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        path:
+          type: "string"
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        mode:
+          type: "string"
+          enum: ["full", "head", "tail"]
+        lines:
+          type: "integer"
+        grep:
+          type: "string"
+      required:
+        - "path"
+
+  # ============ NETWORK TOOLS ============
+  inspect-network-sockets:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ '{{ parameters.tcp}}' = 'true' ] && args+=(--tcp); [ '{{ parameters.udp}}' = 'true' ] && args+=(--udp); [ '{{ parameters.listening}}' = 'true' ] && args+=(--listening); [ -n '{{ parameters.state}}' ] && args+=(--state '{{ parameters.state}}'); [ -n '{{ parameters.port}}' ] && args+=(--port '{{ parameters.port}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/network/inspect-network-sockets.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        tcp:
+          type: "boolean"
+        udp:
+          type: "boolean"
+        listening:
+          type: "boolean"
+        state:
+          type: "string"
+        port:
+          type: "string"
+        all:
+          type: "boolean"
+
+  inspect-network-interfaces:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.interface}}' ] && args+=(--interface '{{ parameters.interface}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/network/inspect-network-interfaces.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        interface:
+          type: "string"
+        all:
+          type: "boolean"
+
+  inspect-routing-table:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.table}}' ] && args+=(--table '{{ parameters.table}}'); [ '{{ parameters.ipv4}}' = 'true' ] && args+=(--ipv4); [ '{{ parameters.ipv6}}' = 'true' ] && args+=(--ipv6); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/network/inspect-routing-table.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        table:
+          type: "string"
+        ipv4:
+          type: "boolean"
+        ipv6:
+          type: "boolean"
+        all:
+          type: "boolean"
+
+  inspect-kernel-network-params:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.filter}}' ] && args+=(--filter '{{ parameters.filter}}'); [ -n '{{ parameters.category}}' ] && args+=(--category '{{ parameters.category}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/network/inspect-kernel-network-params.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        filter:
+          type: "string"
+        category:
+          type: "string"
+          enum: ["core", "ipv4", "ipv6", "bridge", "netfilter"]
+        all:
+          type: "boolean"
+
+  run-traceroute:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(--target '{{ parameters.target}}'); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.maxHops}}' ] && [ '{{ parameters.maxHops}}' != '0' ] && args+=(--max-hops '{{ parameters.maxHops}}'); [ -n '{{ parameters.timeout}}' ] && [ '{{ parameters.timeout}}' != '0' ] && args+=(--timeout '{{ parameters.timeout}}'); [ -n '{{ parameters.queries}}' ] && [ '{{ parameters.queries}}' != '0' ] && args+=(--queries '{{ parameters.queries}}'); [ '{{ parameters.tcp}}' = 'true' ] && args+=(--tcp); [ '{{ parameters.icmp}}' = 'true' ] && args+=(--icmp); [ -n '{{ parameters.port}}' ] && [ '{{ parameters.port}}' != '0' ] && args+=(--port '{{ parameters.port}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/network/run-traceroute.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        target:
+          type: "string"
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        maxHops:
+          type: "integer"
+        timeout:
+          type: "integer"
+        queries:
+          type: "integer"
+        tcp:
+          type: "boolean"
+        icmp:
+          type: "boolean"
+        port:
+          type: "integer"
+        all:
+          type: "boolean"
+      required:
+        - "target"
+
+  # ============ SYSTEM TOOLS ============
+  get-process-info:
+    command:
+      - "bash"
+      - "-c"
+      - "args=(); [ -n '{{ parameters.namespace}}' ] && args+=(--namespace '{{ parameters.namespace}}'); [ -n '{{ parameters.pod}}' ] && args+=(--pod '{{ parameters.pod}}'); [ -n '{{ parameters.node}}' ] && args+=(--node '{{ parameters.node}}'); [ -n '{{ parameters.filter}}' ] && args+=(--filter '{{ parameters.filter}}'); [ -n '{{ parameters.pid}}' ] && [ '{{ parameters.pid}}' != '0' ] && args+=(--pid '{{ parameters.pid}}'); [ -n '{{ parameters.user}}' ] && args+=(--user '{{ parameters.user}}'); [ -n '{{ parameters.sort}}' ] && args+=(--sort '{{ parameters.sort}}'); [ -n '{{ parameters.limit}}' ] && [ '{{ parameters.limit}}' != '0' ] && args+=(--limit '{{ parameters.limit}}'); [ '{{ parameters.all}}' = 'true' ] && args+=(--all); exec /scripts/system/get-process-info.sh \"${args[@]}\""
+    parameterSchema:
+      properties:
+        namespace:
+          type: "string"
+        pod:
+          type: "string"
+        node:
+          type: "string"
+        filter:
+          type: "string"
+        pid:
+          type: "integer"
+        user:
+          type: "string"
+        sort:
+          type: "string"
+          enum: ["cpu", "mem", "pid", "time"]
+        limit:
+          type: "integer"
+        all:
+          type: "boolean"

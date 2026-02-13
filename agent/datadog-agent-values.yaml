@@ -1,0 +1,49 @@
+# Datadog Agent Helm values for Kind cluster
+# Requires secret: kubectl create secret generic datadog-secret --from-literal=api-key=<KEY>
+
+datadog:
+  apiKeyExistingSecret: datadog-secret
+  clusterName: kind-par-dev
+  site: datad0g.com
+
+  # Fix hostname detection in Kind clusters
+  kubelet:
+    host:
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    hostCAPath: /var/lib/kubelet/pki/kubelet.crt
+    tlsVerify: false
+
+  # Log collection
+  logs:
+    enabled: true
+    containerCollectAll: true
+
+clusterAgent:
+  enabled: true
+  # Disable metrics server to avoid conflicts
+  metricsProvider:
+    enabled: false
+
+agents:
+  enabled: true
+
+  # Use node name as hostname (fixes Kind hostname issues)
+  useHostNetwork: false
+  containers:
+    agent:
+      env:
+        - name: DD_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+
+  # Resource limits for Kind cluster (limited resources)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

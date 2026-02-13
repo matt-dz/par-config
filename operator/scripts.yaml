@@ -1,0 +1,18 @@
+schemaId: script-credentials-v1
+runPredefinedScript:
+  # use "echo" as the "Script name" in the action configuration
+  echo:
+    # use an array to specify the command
+    command: ["echo", "Hello world"]
+
+  # another script
+  echo-message:
+    # you can use workflow syntax (https://docs.datadoghq.com/actions/workflows/variables/) to retrieve values from the parameters object
+    command: [ "echo", "{{ parameters.message }}" ]
+    # you can use json schema (https://json-schema.org/) to validate the parameters
+    parameterSchema:
+      properties:
+        message:
+          type: string
+      required:
+        - message
