@@ -8,11 +8,17 @@ metadata:
   annotations:
     agent.datadoghq.com/private-action-runner-enabled: "true"
     agent.datadoghq.com/private-action-runner-configdata: |
-      privateactionrunner:
+      private_action_runner:
         enabled: true
         self_enroll: true
         actions_allowlist:
           - com.datadoghq.script.testConnection
+          - com.datadoghq.ddagent.testConnection
+          - com.datadoghq.ddagent.agentstatus.getStatus
+          - com.datadoghq.ddagent.logs.headFile
+          - com.datadoghq.ddagent.logs.tailFile
+          - com.datadoghq.ddagent.logs.listFiles
+          - com.datadoghq.ddagent.logs.listProcessLogs
           - com.datadoghq.http.request
           - com.datadoghq.script.runShellScript
           - com.datadoghq.script.runPredefinedScript
@@ -38,11 +44,39 @@ spec:
   override:
     nodeAgent:
       image:
-        name: registry.ddbuild.io/ci/datadog-agent/agent:v94998768-9593e559-7-arm64
+        name: registry.ddbuild.io/ci/datadog-agent/agent:v98692284-2ef582c9-7-arm64
       volumes:
         - name: par-scripts
           secret:
             secretName: par-script-credentials
+        - name: host-root
+          hostPath:
+            path: /
+            type: Directory
+        - name: host-etc
+          hostPath:
+            path: /etc
+            type: Directory
+        - name: host-var
+          hostPath:
+            path: /var
+            type: Directory
+        - name: host-opt
+          hostPath:
+            path: /opt
+            type: DirectoryOrCreate
+        - name: host-home
+          hostPath:
+            path: /home
+            type: DirectoryOrCreate
+        - name: host-tmp
+          hostPath:
+            path: /tmp
+            type: Directory
+        - name: host-proc
+          hostPath:
+            path: /proc
+            type: Directory
       containers:
         agent:
           env:
@@ -50,6 +84,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: DD_KUBELET_TLS_VERIFY
+              value: "false"
         private-action-runner:
           env:
             - name: DD_HOSTNAME
@@ -57,8 +93,26 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           volumeMounts:
-            - name: par-scripts
-              mountPath: /etc/dd-action-runner/config/credentials
+            - name: host-root
+              mountPath: /host
+              readOnly: true
+            - name: host-etc
+              mountPath: /host/etc
+              readOnly: true
+            - name: host-var
+              mountPath: /host/var
+              readOnly: true
+            - name: host-opt
+              mountPath: /host/opt
+              readOnly: true
+            - name: host-home
+              mountPath: /host/home
+              readOnly: true
+            - name: host-tmp
+              mountPath: /host/tmp
+              readOnly: true
+            - name: host-proc
+              mountPath: /host/proc
               readOnly: true
     clusterAgent:
       image:

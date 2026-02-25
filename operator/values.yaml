@@ -1,5 +1,5 @@
 # Helm values for datadog-operator with custom image
-# Usage: helm install datadog-operator datadog/datadog-operator -n datadog-operator -f values.yaml
+# Usage: helm install datadog-operator datadog/datadog-operator -f values.yaml
 
 image:
   repository: datadog-operator
