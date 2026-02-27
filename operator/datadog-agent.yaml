@@ -18,6 +18,7 @@ metadata:
           - com.datadoghq.ddagent.logs.listFiles
           - com.datadoghq.ddagent.logs.listProcessLogs
           - com.datadoghq.ddagent.shell.runShell
+          - com.datadoghq.ddagent.shell.getManual
 spec:
   global:
     credentials:
