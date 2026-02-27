@@ -37,7 +37,7 @@ spec:
   override:
     nodeAgent:
       image:
-        name: registry.ddbuild.io/ci/datadog-agent/agent:v99464809-71f5ec5a-7-arm64
+        name: registry.ddbuild.io/ci/datadog-agent/agent:v99514784-d80aa735-7-arm64
       volumes:
         - name: par-scripts
           secret:
