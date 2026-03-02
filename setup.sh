@@ -3,38 +3,80 @@
 # Creates VM, Kind cluster, and configures kubectl access from macOS
 #
 # Usage:
-#   ./setup.sh              # Full setup (VM + cluster)
-#   ./setup.sh --cluster    # Recreate cluster only (VM must exist)
-#   ./setup.sh --agent      # Setup cluster + deploy Datadog Agent
-#   ./setup.sh --all        # Setup cluster + Agent + PAR
+#   ./setup.sh                            # Full setup (VM + cluster), prompts for names
+#   ./setup.sh --vm <name>                # Specify VM name (default: par-dev)
+#   ./setup.sh --cluster-name <name>      # Specify cluster name (default: par-dev)
+#   ./setup.sh --cluster                  # Recreate cluster only (VM must exist)
+#   ./setup.sh --agent                    # Setup cluster + deploy Datadog Agent
+#   ./setup.sh --all                      # Setup cluster + Agent + PAR
 
 set -euo pipefail
 
-VM_NAME="par-dev"
-CLUSTER_NAME="par-dev"
+DEFAULT_VM_NAME="par-dev"
+DEFAULT_CLUSTER_NAME="par-dev"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-KUBECONFIG_FILE="$HOME/.kube/par-dev.yaml"
 DEFAULT_KUBECONFIG="$HOME/.kube/config"
 
 # Parse arguments
+VM_NAME=""
+CLUSTER_NAME=""
 DEPLOY_AGENT=false
 DEPLOY_PAR=false
 CLUSTER_ONLY=false
 
-for arg in "$@"; do
-    case $arg in
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --vm)
+            VM_NAME="$2"
+            shift 2
+            ;;
+        --cluster-name)
+            CLUSTER_NAME="$2"
+            shift 2
+            ;;
         --agent)
             DEPLOY_AGENT=true
+            shift
             ;;
         --all)
             DEPLOY_AGENT=true
             DEPLOY_PAR=true
+            shift
             ;;
         --cluster)
             CLUSTER_ONLY=true
+            shift
+            ;;
+        *)
+            shift
             ;;
     esac
 done
+
+# Prompt for VM and cluster names if not provided via flags
+if [[ -z "$VM_NAME" ]]; then
+    read -r -p "VM name [${DEFAULT_VM_NAME}]: " input
+    VM_NAME="${input:-$DEFAULT_VM_NAME}"
+fi
+
+if [[ -z "$CLUSTER_NAME" ]]; then
+    read -r -p "Cluster name [${DEFAULT_CLUSTER_NAME}]: " input
+    CLUSTER_NAME="${input:-$DEFAULT_CLUSTER_NAME}"
+fi
+
+KUBECONFIG_FILE="$HOME/.kube/${CLUSTER_NAME}.yaml"
+
+# Confirm before proceeding
+echo ""
+echo "  VM name:      $VM_NAME"
+echo "  Cluster name: $CLUSTER_NAME"
+echo ""
+read -r -p "Proceed? [Y/n] " input
+if [[ "${input:-y}" =~ ^[Nn]$ ]]; then
+    echo "Aborted."
+    exit 0
+fi
+echo ""
 
 # Merge extracted kubeconfig into default config so kubectx/kubectl can find it
 merge_kubeconfig() {

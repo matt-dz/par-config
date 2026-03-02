@@ -8,8 +8,8 @@ env:
   KUBECTL_VERSION: "v1.32"
 
 images:
-- location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
-  arch: "aarch64"
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
 
 cpus: 6
 memory: 12GiB
@@ -27,14 +27,8 @@ portForwards:
 
 # Mount PAR tools configuration from host
 mounts:
-  - location: "~/dd/par-tools/par"
+  - location: "~/dd/par-tools"
     mountPoint: "/home/lima.linux/par"
-    writable: true
-  - location: "~/dd/par-tools/agent"
-    mountPoint: "/home/lima.linux/agent"
-    writable: true
-  - location: "~/dd/par-tools/scripts"
-    mountPoint: "/home/lima.linux/scripts"
     writable: true
 
 provision:
