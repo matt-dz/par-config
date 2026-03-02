@@ -30,6 +30,10 @@ spec:
     logCollection:
       enabled: true
       containerCollectAll: true
+    apm:
+      enabled: true
+    liveProcessCollection:
+      enabled: true
   override:
     nodeAgent:
       image:
