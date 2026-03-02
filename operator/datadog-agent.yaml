@@ -13,10 +13,6 @@ metadata:
         self_enroll: true
         actions_allowlist:
           - com.datadoghq.ddagent.testConnection
-          - com.datadoghq.ddagent.logs.headFile
-          - com.datadoghq.ddagent.logs.tailFile
-          - com.datadoghq.ddagent.logs.listFiles
-          - com.datadoghq.ddagent.logs.listProcessLogs
           - com.datadoghq.ddagent.shell.runShell
           - com.datadoghq.ddagent.shell.getManual
 spec:
@@ -109,4 +105,4 @@ spec:
               readOnly: true
     clusterAgent:
       image:
-        name: docker.io/datadog/cluster-agent:7.76.0-rc.3
+        name: docker.io/datadog/cluster-agent:7.76.1
