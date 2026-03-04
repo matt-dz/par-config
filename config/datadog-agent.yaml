@@ -34,6 +34,9 @@ spec:
       containerCollectAll: true
     apm:
       enabled: true
+      hostPortConfig:
+        enabled: true
+        hostPort: 8126
     liveProcessCollection:
       enabled: true
   override:
