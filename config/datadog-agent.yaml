@@ -4,7 +4,7 @@
 apiVersion: datadoghq.com/v2alpha1
 kind: DatadogAgent
 metadata:
-  name: datadog-agent
+  name: datadog
   annotations:
     agent.datadoghq.com/private-action-runner-enabled: "true"
     agent.datadoghq.com/private-action-runner-configdata: |
@@ -13,6 +13,8 @@ metadata:
         self_enroll: true
         actions_allowlist:
           - com.datadoghq.ddagent.testConnection
+          - com.datadoghq.ddagent.sandboxedshell.closeSession
+          - com.datadoghq.ddagent.sandboxedshell.runSandboxed
           - com.datadoghq.ddagent.shell.runShell
           - com.datadoghq.ddagent.shell.getManual
 spec:
@@ -37,38 +39,11 @@ spec:
   override:
     nodeAgent:
       image:
-        name: registry.ddbuild.io/ci/datadog-agent/agent:v99763332-b7b58f49-7-arm64
+        name: registry.ddbuild.io/ci/datadog-agent/agent:v100167629-150e8214-7-arm64
       volumes:
-        - name: par-scripts
-          secret:
-            secretName: par-script-credentials
         - name: host-root
           hostPath:
             path: /
-            type: Directory
-        - name: host-etc
-          hostPath:
-            path: /etc
-            type: Directory
-        - name: host-var
-          hostPath:
-            path: /var
-            type: Directory
-        - name: host-opt
-          hostPath:
-            path: /opt
-            type: DirectoryOrCreate
-        - name: host-home
-          hostPath:
-            path: /home
-            type: DirectoryOrCreate
-        - name: host-tmp
-          hostPath:
-            path: /tmp
-            type: Directory
-        - name: host-proc
-          hostPath:
-            path: /proc
             type: Directory
       containers:
         agent:
@@ -88,24 +63,6 @@ spec:
           volumeMounts:
             - name: host-root
               mountPath: /host
-              readOnly: true
-            - name: host-etc
-              mountPath: /host/etc
-              readOnly: true
-            - name: host-var
-              mountPath: /host/var
-              readOnly: true
-            - name: host-opt
-              mountPath: /host/opt
-              readOnly: true
-            - name: host-home
-              mountPath: /host/home
-              readOnly: true
-            - name: host-tmp
-              mountPath: /host/tmp
-              readOnly: true
-            - name: host-proc
-              mountPath: /host/proc
               readOnly: true
     clusterAgent:
       image:
