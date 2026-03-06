@@ -42,7 +42,7 @@ spec:
   override:
     nodeAgent:
       image:
-        name: registry.ddbuild.io/ci/datadog-agent/agent:v100167629-150e8214-7-arm64
+        name: registry.ddbuild.io/ci/datadog-agent/agent:v100759442-5cf9b3e2-7-arm64
       volumes:
         - name: host-root
           hostPath:
